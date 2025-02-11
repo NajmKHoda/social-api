@@ -3,8 +3,8 @@ import { handleLogin, handleRegistration, handleUserPostsRetrieval, handleUserRe
 
 const router = Router();
 
+router.post('/', handleRegistration);
 router.get('/login', handleLogin);
-router.post('/register', handleRegistration);
 router.get('/:id', handleUserRetrieval);
 router.get('/:id/posts', handleUserPostsRetrieval);
 
