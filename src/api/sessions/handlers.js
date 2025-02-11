@@ -3,6 +3,9 @@ import { User } from '../../data/user.js';
 import { Session } from '../../data/session.js';
 import asyncHandler from 'express-async-handler';
 import { isObjectIdOrHexString } from 'mongoose';
+import { SignJWT } from 'jose';
+
+const { SESSION_SECRET, SESSION_DURATION, SESSION_ISSUER } = process.env;
 
 export const handleLogin = asyncHandler(async (req, res) => {
     const auth = req.get('Authorization');
@@ -17,10 +20,20 @@ export const handleLogin = asyncHandler(async (req, res) => {
     const encryptedPassword = await bcrypt.hash(password, 12);
     if (user.password !== encryptedPassword) return res.sendStatus(401); // Unauthorized
 
-    // Create the session and give the user the session token
+    // Create the session and its token
     const session = await Session.create({ user: user._id });
-    res.cookie('session', session._id, { httpOnly: true });
-    
+    const sessionId = session._id.toHexString();
+    const sessionToken = await new SignJWT({ sessionId })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime(SESSION_DURATION)
+        .setIssuer(SESSION_ISSUER)
+        .sign(SESSION_SECRET);
+
+    res.cookie('session', sessionToken, {
+        httpOnly: true,
+        maxAge: SESSION_DURATION * 1000
+    });
     res.sendStatus(200); // Request succeeded
 });
 
