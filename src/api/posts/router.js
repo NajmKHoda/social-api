@@ -4,12 +4,12 @@ import { getSession } from '../../middleware/getSession.js';
 
 const router = Router();
 
-router.get('/', handlePostRetrieval);
+router.get('/:id', handlePostRetrieval);
 
 router.use(getSession);
 router.post('/', handlePostCreation);
-router.delete('/', handlePostDeletion);
-router.get('/flag', handleFlagsRetrieval);
-router.post('/flag', handleFlagCreation);
+router.delete('/:id', handlePostDeletion);
+router.get('/:id/flag', handleFlagsRetrieval);
+router.post('/:id/flag', handleFlagCreation);
 
 export default router;

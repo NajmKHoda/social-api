@@ -19,7 +19,7 @@ export const handlePostCreation = asyncHandler(async (req, res) => {
 });
 
 export const handlePostDeletion = asyncHandler(async (req, res) => {
-    const { id } = req.query;
+    const { id } = req.params;
     if (!isObjectIdOrHexString(id))
         return res.sendStatus(400); // Bad Request (no valid post id)
 
@@ -37,7 +37,7 @@ export const handlePostDeletion = asyncHandler(async (req, res) => {
 });
 
 export const handlePostRetrieval = asyncHandler(async (req, res) => {
-    const { id } = req.query;
+    const { id } = req.params;
     if (!isObjectIdOrHexString(id))
         return res.sendStatus(400); // Bad Request (no valid post id)
 
@@ -74,7 +74,7 @@ export const handleFlagsRetrieval = asyncHandler(async (req, res) => {
     if (!req.user.isAdmin)
         return res.sendStatus(403); // Forbidden (not an admin)
 
-    const { id } = req.query;
+    const { id } = req.params;
     if (!isObjectIdOrHexString(id))
         return res.sendStatus(400); // Bad Request (no post id)
 

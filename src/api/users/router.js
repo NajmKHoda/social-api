@@ -3,9 +3,9 @@ import { handleLogin, handleRegistration, handleUserPostsRetrieval, handleUserRe
 
 const router = Router();
 
-router.get('/', handleUserRetrieval);
 router.get('/login', handleLogin);
 router.post('/register', handleRegistration);
-router.get('/posts', handleUserPostsRetrieval);
+router.get('/:id', handleUserRetrieval);
+router.get('/:id/posts', handleUserPostsRetrieval);
 
 export default router;

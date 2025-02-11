@@ -50,7 +50,7 @@ export const handleRegistration = asyncHandler(async (req, res) => {
 });
 
 export const handleUserRetrieval = asyncHandler(async (req, res) => {
-    const { id } = req.query;
+    const { id } = req.params;
     if (!isObjectIdOrHexString(id))
         return res.sendStatus(400); // Bad Request (no user id)
 
@@ -66,7 +66,7 @@ export const handleUserRetrieval = asyncHandler(async (req, res) => {
 });
 
 export const handleUserPostsRetrieval = asyncHandler(async (req, res) => {
-    const { id } = req.query;
+    const { id } = req.params;
     if (!isObjectIdOrHexString(id))
         return res.sendStatus(400); // Bad Request (no user id)
 
