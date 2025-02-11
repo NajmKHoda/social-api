@@ -3,6 +3,8 @@ import { User } from '../../data/user.js';
 import { Session } from '../../data/session.js';
 import asyncHandler from 'express-async-handler'
 import { isContentAllowed } from '../../util/contentFilter.js';
+import { isObjectIdOrHexString } from 'mongoose';
+import { Post } from '../../data/post.js';
 
 export const handleLogin = asyncHandler(async (req, res) => {
     const auth = req.get('Authorization');
@@ -45,4 +47,35 @@ export const handleRegistration = asyncHandler(async (req, res) => {
     res.cookie('session', session._id, { httpOnly: true });
 
     res.sendStatus(201); // Account created
+});
+
+export const handleUserRetrieval = asyncHandler(async (req, res) => {
+    const { id } = req.query;
+    if (!isObjectIdOrHexString(id))
+        return res.sendStatus(400); // Bad Request (no user id)
+
+    const user = await User.findById(id).select('username bio').lean();
+    if (!user)
+        return res.sendStatus(404); // User not found
+
+    res.json({
+        id: user._id,
+        username: user.username,
+        bio: user.bio
+    });
+});
+
+export const handleUserPostsRetrieval = asyncHandler(async (req, res) => {
+    const { id } = req.query;
+    if (!isObjectIdOrHexString(id))
+        return res.sendStatus(400); // Bad Request (no user id)
+
+    const posts = (await Post.find({ author: id }).lean()).map(post => ({
+        id: post._id,
+        title: post.title,
+        content: post.content,
+        creationTime: post.creationTime
+    }));
+
+    res.json(posts);
 });
