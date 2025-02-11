@@ -65,6 +65,20 @@ export const handleUserRetrieval = asyncHandler(async (req, res) => {
     });
 });
 
+export const handleUserDeletion = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (!isObjectIdOrHexString(id))
+        return res.sendStatus(400); // Bad Request (no user id)
+
+    if (!req.user.isAdmin && req.user._id !== id)
+        return res.sendStatus(403); // Forbidden (not an admin/the user)
+
+    // Delete the user
+    await User.findByIdAndDelete(id);
+
+    res.sendStatus(204); // Deletion successful
+});
+
 export const handleUserPostsRetrieval = asyncHandler(async (req, res) => {
     const { id } = req.params;
     if (!isObjectIdOrHexString(id))
