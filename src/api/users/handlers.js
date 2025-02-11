@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { User } from '../../data/user.js';
 import { Session } from '../../data/session.js';
 import asyncHandler from 'express-async-handler'
+import { isContentAllowed } from '../../util/contentFilter.js';
 
 export const handleLogin = asyncHandler(async (req, res) => {
     const auth = req.get('Authorization');
@@ -24,9 +25,13 @@ export const handleLogin = asyncHandler(async (req, res) => {
 });
 
 export const handleRegistration = asyncHandler(async (req, res) => {
-    const { username, password } = req.body;
-    if (typeof username !== 'string' || typeof password !== 'string')
-        return res.sendStatus(400); // Bad Request (no username or password)
+    const { username, password, bio } = req.body;
+    if (typeof username !== 'string' ||
+        !isContentAllowed(username) ||
+        typeof password !== 'string' ||
+        typeof bio !== 'string' ||
+        !isContentAllowed(bio))
+        return res.sendStatus(400); // Bad Request (bad username/password/bio)
 
     const encryptedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
