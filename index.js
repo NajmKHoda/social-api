@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import usersRouter from './src/api/users/router.js';
+import postsRouter from './src/api/posts/router.js';
 
 const app = express();
 
@@ -13,6 +14,7 @@ async function main() {
     app.use(express.json());
     app.use(cookieParser())
     app.use('/api/users', usersRouter);
+    app.use('/api/posts', postsRouter);
 
     app.listen(8000, () => console.log('Server is running on port 8000!'));
 };

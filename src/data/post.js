@@ -5,6 +5,7 @@ const postSchema = new Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
     creationTime: { type: Date, default: Date.now },
+    likedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     flags: [{ 
         reporter: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
         reason: { type: String, required: true }

@@ -51,9 +51,53 @@ export const handlePostRetrieval = asyncHandler(async (req, res) => {
         authorId: post.author.toHexString(),
         title: post.title,
         content: post.content,
-        creationTime: post.creationTime
+        creationTime: post.creationTime,
+        likedBy: post.likedBy.map(id => id.toHexString())
     });
 });
+
+// LIKES
+
+export const handleLike = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (!isObjectIdOrHexString(id))
+        return res.sendStatus(400); // Bad Request (no valid post id)
+
+    const post = await Post.findById(id).select('likedBy');
+    if (!post)
+        return res.sendStatus(404); // Post not found
+
+    if (post.likedBy.includes(req.user._id))
+        return res.sendStatus(409); // Conflict (already liked)
+
+    likedBy.push(req.user._id);
+    post.save();
+
+    res.send(201); // Like created
+});
+
+export const handleUnlike = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (!isObjectIdOrHexString(id))
+        return res.sendStatus(400); // Bad Request (no valid post id)
+
+    const post = await Post.findById(id).select('likedBy');
+    if (!post)
+        return res.sendStatus(404); // Post not found
+
+    const index = post.likedBy.indexOf(req.user._id);
+    if (index === -1)
+        return res.sendStatus(409); // Conflict (not liked)
+
+    // Remove the like
+    likedBy.splice(index, 1);
+    post.save();
+
+    res.sendStatus(204); // Unlike successful
+});
+
+
+// FLAGGING
 
 export const handleFlagCreation = asyncHandler(async (req, res) => {
     const { id, reason } = req.body;
