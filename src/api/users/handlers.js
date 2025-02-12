@@ -6,8 +6,10 @@ import { isContentAllowed } from '../../util/contentFilter.js';
 import { isObjectIdOrHexString } from 'mongoose';
 import { Post } from '../../data/post.js';
 
+const { ADMIN_SECRET } = process.env;
+
 export const handleRegistration = asyncHandler(async (req, res) => {
-    const { username, password, bio } = req.body;
+    const { username, password, bio, adminSecret } = req.body;
     if (typeof username !== 'string' ||
         !isContentAllowed(username) ||
         typeof password !== 'string' ||
@@ -19,7 +21,7 @@ export const handleRegistration = asyncHandler(async (req, res) => {
     const user = await User.create({
         username,
         password: encryptedPassword,
-        isAdmin: false
+        isAdmin: adminSecret === ADMIN_SECRET,
     });
 
     // Create a session for the new user
