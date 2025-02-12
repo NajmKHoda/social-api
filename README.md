@@ -41,6 +41,8 @@ This API exposes the following routes and methods:
 - **`POST /api/sessions`**: Log in and create a new session
 - **`DELETE /api/sessions`**: Log out and delete the current session
 
+Check out the [full documentation](./docs/docs.md).
+
 ## Setup
 
 To set up the project, follow these steps:
