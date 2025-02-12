@@ -1,9 +1,10 @@
 import asyncHandler from 'express-async-handler';
-import { Session } from '../data/session';
-import { jwtDecrypt } from 'jose';
+import { Session } from '../data/session.js';
+import { jwtVerify } from 'jose';
 import { isObjectIdOrHexString } from 'mongoose';
 
 const { SESSION_SECRET, SESSION_ISSUER } = process.env;
+const secretKey = new TextEncoder().encode(SESSION_SECRET);
 
 export const getSession = asyncHandler(async (req, res, next) => {
     const sessionToken = req.cookies.session;
@@ -15,10 +16,10 @@ export const getSession = asyncHandler(async (req, res, next) => {
     let sessionId;
     
     try {
-        const decryptResult = await jwtDecrypt(sessionToken, SESSION_SECRET, { issuer: SESSION_ISSUER });
+        const decryptResult = await jwtVerify(sessionToken, secretKey, { issuer: SESSION_ISSUER });
         sessionId = decryptResult.payload.sessionId;
     } catch (error) {
-        res.clearCookie('error'); // Destroy invalid session cookie
+        res.clearCookie('session'); // Destroy invalid session cookie
         return res.sendStatus(401); // Unauthorized (invalid session)
     }
 
@@ -33,6 +34,7 @@ export const getSession = asyncHandler(async (req, res, next) => {
         return res.sendStatus(401); 
     }
 
+    req.sessionId = sessionId;
     req.user = session.user;
     next();
 });

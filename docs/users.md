@@ -17,6 +17,7 @@ Register a new user.
 
 ### Response
 - `201 Created`: Account created successfully. If `adminSecret` is provided and matches the server's `ADMIN_SECRET` variable, the account is given admin permissions. The user obtains a session token through the `session` cookie.
+- `209 Conflict`: The given username is already in use.
 - `400 Bad Request`: Invalid input data.
 
 ## GET /api/users/[id]

@@ -87,6 +87,13 @@ Obtain a post's flags **(admins only)**.
 ## POST /api/posts/[id]/flag
 Flag a post for review.
 
+### Request Body
+```ts
+{
+    reason: string
+}
+```
+
 ### Response
 - `201 Created`: Post flagged successfully.
 - `400 Bad Request`: Invalid post ID.

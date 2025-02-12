@@ -27,7 +27,7 @@ export const handlePostDeletion = asyncHandler(async (req, res) => {
 
     if (!post)
         return res.sendStatus(404); // Post not found
-    if (!req.user.isAdmin && post.author !== req.user._id)
+    if (!req.user.isAdmin && !post.author.equals(req.user._id))
         return res.sendStatus(403); // Forbidden (not an admin/the author)
 
     // Delete the post
@@ -47,7 +47,7 @@ export const handlePostRetrieval = asyncHandler(async (req, res) => {
         .lean();
 
     res.json({
-        id: post._id,
+        id: post._id.toHexString(),
         authorId: post.author.toHexString(),
         title: post.title,
         content: post.content,
@@ -67,13 +67,13 @@ export const handleLike = asyncHandler(async (req, res) => {
     if (!post)
         return res.sendStatus(404); // Post not found
 
-    if (post.likedBy.includes(req.user._id))
+    if (post.likedBy.some(userId => userId.equals(req.user._id)))
         return res.sendStatus(409); // Conflict (already liked)
 
-    likedBy.push(req.user._id);
-    post.save();
+    post.likedBy.push(req.user._id);
+    await post.save();
 
-    res.send(201); // Like created
+    res.sendStatus(201); // Like created
 });
 
 export const handleUnlike = asyncHandler(async (req, res) => {
@@ -85,22 +85,23 @@ export const handleUnlike = asyncHandler(async (req, res) => {
     if (!post)
         return res.sendStatus(404); // Post not found
 
-    const index = post.likedBy.indexOf(req.user._id);
+    const index = post.likedBy.findIndex(userId => userId.equals(req.user._id));
     if (index === -1)
         return res.sendStatus(409); // Conflict (not liked)
 
     // Remove the like
-    likedBy.splice(index, 1);
-    post.save();
+    post.likedBy.splice(index, 1);
+    await post.save();
 
     res.sendStatus(204); // Unlike successful
 });
 
 
 // FLAGGING
-
+    
 export const handleFlagCreation = asyncHandler(async (req, res) => {
-    const { id, reason } = req.body;
+    const { id } = req.params;
+    const { reason } = req.body;
     if (typeof reason !== 'string' || !isObjectIdOrHexString(id))
         return res.sendStatus(400); // Bad Request (no reason/post to flag)
 
@@ -109,7 +110,7 @@ export const handleFlagCreation = asyncHandler(async (req, res) => {
         return res.sendStatus(404); // Post not found
 
     post.flags.push({ reporter: req.user._id, reason });
-    post.save();
+    await post.save();
 
     res.sendStatus(201); // Flag created
 });
@@ -126,5 +127,8 @@ export const handleFlagsRetrieval = asyncHandler(async (req, res) => {
     if (!post)
         return res.sendStatus(404); // Post not found
 
-    res.json(post.flags);
+    res.json(post.flags.map(flag => ({
+        reporter: flag.reporter,
+        reason: flag.reason
+    })));
 });

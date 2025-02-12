@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const configPath = path.resolve(__dirname, '../../config/disallowedWords.txt');
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+const configPath = path.resolve(dirname, '../../config/disallowedWords.txt');
 const disallowedWords = fs.readFileSync(configPath, 'utf-8')
     .split('\n') // Split newlines
     .filter(Boolean) // Remove empty lines

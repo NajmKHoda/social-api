@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 import { User } from '../../data/user.js';
-import { Session } from '../../data/session.js';
 import asyncHandler from 'express-async-handler'
 import { isContentAllowed } from '../../util/contentFilter.js';
 import { isObjectIdOrHexString } from 'mongoose';
 import { Post } from '../../data/post.js';
+import { createSession } from '../../util/createSession.js';
 
 const { ADMIN_SECRET } = process.env;
 
@@ -16,17 +16,21 @@ export const handleRegistration = asyncHandler(async (req, res) => {
         typeof bio !== 'string' ||
         !isContentAllowed(bio))
         return res.sendStatus(400); // Bad Request (bad username/password/bio)
-
+    
+    const usernameTaken = await User.exists({ username });
+    if (usernameTaken)
+        return res.sendStatus(409); // Conflict (username taken)
+    
     const encryptedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
         username,
         password: encryptedPassword,
         isAdmin: adminSecret === ADMIN_SECRET,
+        bio
     });
 
     // Create a session for the new user
-    const session = await Session.create({ user: user._id });
-    res.cookie('session', session._id, { httpOnly: true });
+    await createSession(user._id, res);
 
     res.sendStatus(201); // Account created
 });
