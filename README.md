@@ -74,6 +74,7 @@ To set up the project, follow these steps:
     SESSION_DURATION= # Length of a session, in seconds
     SESSION_ISSUER= # Name of the app providing the session
     ```
+    You can also declare a `PORT` variable if you want to bind to a port other than `8000`.
     You may refer to [`.env.example`](/.env.example) for a template.
 
 4. (optional) **Configure prohibited words**:
@@ -85,4 +86,4 @@ To set up the project, follow these steps:
     npm start
     ```
 
-Your API should now be running on port `8000`.
+Your API server should now be running.

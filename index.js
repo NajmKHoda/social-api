@@ -6,6 +6,8 @@ import usersRouter from './src/api/users/router.js';
 import postsRouter from './src/api/posts/router.js';
 import sessionsRouter from './src/api/sessions/router.js';
 
+const PORT = process.env.PORT || 8000;
+
 const app = express();
 
 async function main() {
@@ -18,7 +20,7 @@ async function main() {
     app.use('/api/posts', postsRouter);
     app.use('/api/sessions', sessionsRouter);
 
-    app.listen(8000, () => console.log('Server is running on port 8000!'));
+    app.listen(PORT, () => console.log(`Server is running on port ${PORT}!`));
 };
 
 main();
