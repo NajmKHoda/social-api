@@ -18,7 +18,8 @@ export const handleLogin = asyncHandler(async (req, res) => {
     if (!user) return res.sendStatus(404); // User not found
 
     const encryptedPassword = await bcrypt.hash(password, 12);
-    if (user.password !== encryptedPassword) return res.sendStatus(401); // Unauthorized
+    const passwordsMatch = await bcrypt.compare(password, user.password);
+    if (!passwordsMatch) return res.sendStatus(401); // Unauthorized
 
     // Create the session and its token
     const session = await Session.create({ user: user._id });
