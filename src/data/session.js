@@ -1,10 +1,10 @@
 import { model, Schema } from 'mongoose'
 
-const SESSION_TIME = 7 * 24 * 60 * 60; // 1 week
+const { SESSION_DURATION } = process.env;
 
 const sessionSchema = new Schema({
     user: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
-    lastActive: { type: Date, default: Date.now, expires: SESSION_TIME }
+    lastActive: { type: Date, default: Date.now, expires: SESSION_DURATION }
 });
 
 export const Session = model('Session', sessionSchema);
